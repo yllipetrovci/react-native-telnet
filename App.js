@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -14,30 +14,82 @@ import {
   Text,
   StatusBar,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 
 import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
-import ToastExample from './ToastExample';
-
-
+import TelnetClient from './TelnetClient';
 
 const App = () => {
-  const click = () => {
-    // ToastExample.show('Awesome',1000);
-    ToastExample.execute('Ylli',(data)=>{
-      console.log(data);
-    })
+  const [command, setCommand] = useState('');
+  const [response, setResponse] = useState([]);
+
+  const onPressConnect = () => {
+    console.log('Connect Button CLICKED')
+    TelnetClient.connect((success) => {
+      console.log('===Success===')
+      console.log({ success })
+    }, (error) => {
+      console.log('===Error===')
+      console.log({ error })
+    });
   }
+
+  const onPressSendCommand = () => {
+    console.log('Command button clicked')
+    TelnetClient.sendCommand(command, (success) => {
+      console.log('===Success===')
+      setResponse(success);
+      // success.map(data => console.log(data))
+    }, (error) => {
+      console.log('===Error===')
+      console.log({ error });
+    });
+  }
+
+  const onPressDisconnect = () => {
+
+    console.log('Disconnect Button clicked')
+    // TelnetClient.disconnect((success) => {
+    //   console.log('===Success===')
+    //   console.log({ success })
+    // }, (error) => {
+    //   console.log('===Error===')
+    //   console.log({ error });
+    // });
+  }
+
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
         <View>
-          <TouchableOpacity onPress={click}>
-            <Text>Hello World</Text>
-          </TouchableOpacity>
+          {/* Terminal */}
+          <View style={{ borderWidth: 1, borderColor: 'green' }}>
+            <Text>Here command line</Text>
+          </View>
+          {/* Buttons */}
+          <View style={{ borderWidth: 1, borderColor: 'red' }}>
+            <TouchableOpacity onPress={onPressConnect} style={{ backgroundColor: 'red', height: 50 }}>
+              <Text>Connect</Text>
+            </TouchableOpacity>
+            <TextInput
+              onChangeText={setCommand}
+            />
+            <TouchableOpacity onPress={onPressSendCommand} style={{ backgroundColor: 'green', height: 50 }}>
+              <Text>Send Command</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={onPressDisconnect} style={{ backgroundColor: 'yellow', height: 50 }}>
+              <Text>Disconnect</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ borderWidth: 1, borderColor: 'black', marginVertical: 10, marginHorizontal: 10 }}>
+            {response.map(data => <Text style={{paddingTop:4}}>{data}</Text>)}
+          </View>
         </View>
       </SafeAreaView>
     </>
