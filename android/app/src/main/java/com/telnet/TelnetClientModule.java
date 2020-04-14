@@ -62,51 +62,58 @@ public class TelnetClientModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void connect(ReadableMap config,Callback onSuccessCallback, Callback onErrorCallback) {
-        //Parse the data fro
+        //Parse config
         String ipAddress = config.getString("ipAddress");
         String port = config.getString("port");
         String username = config.getString("username");
         String password = config.getString("password");
 
-        telnetClientConfig = new TelnetClientConfig(ipAddress, Integer.parseInt(port), username, password);
-        telnetClient = new TelnetClient("VT100");
+        Thread executingConnectThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                telnetClientConfig = new TelnetClientConfig(ipAddress, Integer.parseInt(port), username, password);
+                telnetClient = new TelnetClient("VT100");
 
-        // Connect to telnet terminal
+                // Connect to telnet terminal
+                try {
+                    telnetClient.connect(telnetClientConfig.getRemoteIpAddress(), telnetClientConfig.getPort());
+                    telnetClient.registerNotifHandler(new TelnetNotificationHandlerImp());
+                    addOptionalConnectionHandlers(telnetClient);
+                    Thread.currentThread().sleep(2000); // TODO: Remove
+                    Thread reader = new Thread(
+                            new TelnetResponseMessageHandler(telnetClient, messageHolder, onSuccessCallback, onErrorCallback));
+                    reader.start();
+                    // Thread.currentThread().sleep(3000); // TODO: Remove
+                } catch (IOException e) {
+
+                    System.err.println("Exception while connecting:" + e.getMessage());
+                    onErrorCallback.invoke("Exception while connecting:" + e.getMessage());
+
+                } catch (InterruptedException e) {
+                    System.err.println("Exception while connecting:" + e.getMessage());
+                    onErrorCallback.invoke("Exception while connecting:" + e.getMessage());
+                } catch (InvalidTelnetOptionException e) {
+                    onErrorCallback.invoke("Invalid telnet exception" + e.getMessage());
+                }catch (NumberFormatException e){
+                    onErrorCallback.invoke("Invalid port number");
+                    System.out.print("Number format exception");
+                }
+
+                if (!(telnetClientConfig.getUsername().isEmpty() || telnetClientConfig.getPassword().isEmpty())) {
+                    authenticate(telnetClient, telnetClientConfig);
+                }
+
+                onSuccessCallback.invoke("Connection successful");
+            
+            }
+        });
+
         try {
-            this.telnetClient.connect(this.telnetClientConfig.getRemoteIpAddress(), this.telnetClientConfig.getPort());
-            this.telnetClient.registerNotifHandler(new TelnetNotificationHandlerImp());
-            this.addOptionalConnectionHandlers(this.telnetClient);
-            Thread.currentThread().sleep(2000); // TODO: Remove
-            Thread reader = new Thread(
-                    new TelnetResponseMessageHandler(telnetClient, messageHolder, onSuccessCallback, onErrorCallback));
-            reader.start();
-            // Thread.currentThread().sleep(3000); // TODO: Remove
-        } catch (IOException e) {
-
-            System.err.println("Exception while connecting:" + e.getMessage());
-            onErrorCallback.invoke("Exception while connecting:" + e.getMessage());
-
+            executingConnectThread.join();
+            executingConnectThread.start();
         } catch (InterruptedException e) {
-            System.err.println("Exception while connecting:" + e.getMessage());
-            onErrorCallback.invoke("Exception while connecting:" + e.getMessage());
-        } catch (InvalidTelnetOptionException e) {
-            onErrorCallback.invoke("invalid telnet exception" + e.getMessage());
-        }catch (NumberFormatException e){
-            System.out.print("Number format exception");
+            e.printStackTrace();
         }
-
-        if (!(this.telnetClientConfig.getUsername().isEmpty() || this.telnetClientConfig.getPassword().isEmpty())) {
-            this.authenticate(this.telnetClient, this.telnetClientConfig);
-        }
-        WritableNativeArray response = new WritableNativeArray();
-        response.pushString(ipAddress);
-        response.pushString(port);
-        response.pushString(username);
-        response.pushString(password);
-
-
-        // onSuccessCallback.invoke("Connection successful");
-        onSuccessCallback.invoke(response);
 
     }
 
@@ -167,6 +174,7 @@ public class TelnetClientModule extends ReactContextBaseJavaModule {
 
             }
         });
+
         try {
             executingCommandThread.join();
             executingCommandThread.start();
