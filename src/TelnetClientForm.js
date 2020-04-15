@@ -3,26 +3,14 @@ import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, Keyboa
 import TelnetClient from '../TelnetClient';
 
 const TelnetClientForm = () => {
+    const CONNECTION_STATE = {
+        ON_LOAD: 'Connecting...',
+        SUCCESS: 'Connected',
+        FAILED: 'Disconnected'
+    };
     const [command, setCommand] = useState('');
-    const [response, setResponse] = useState([
-        'Hello world',
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        "heeee",
-        
-    ]);
+    const [response, setResponse] = useState([]);
+    const [connectionStateValue, setConnectionStateValue] = useState(CONNECTION_STATE.ON_LOAD);
 
     const config = {
         ipAddress: '209.73.216.51',
@@ -32,11 +20,18 @@ const TelnetClientForm = () => {
     }
 
     useEffect(() => {
+        setTimeout(() => {
+            setConnectionStateValue(CONNECTION_STATE.SUCCESS);
+        }, 2000)
         // onPressConnect();
     }, [])
 
-    const onSubmitEditing = () => {
+    const onSubmitEditing = (event) => {
+        const target = event.nativeEvent;
+        const value = target.text;
         console.log('SUBMITED')
+        setResponse([...response, value]);
+        setCommand('');
     }
 
     const onPressConnect = () => {
@@ -63,7 +58,6 @@ const TelnetClientForm = () => {
     }
 
     const onPressDisconnect = () => {
-
         console.log('Disconnect Button clicked')
         TelnetClient.disconnect((success) => {
             console.log('===Success===')
@@ -79,20 +73,21 @@ const TelnetClientForm = () => {
         >
             <View style={styles.container}>
                 {/* status flag */}
-                <View style={{ marginVertical: 2, alignItems: 'center' }}>
-                    <Text style={{ color: 'green' }}>Connected</Text>
+                <View style={styles.statusFlag}>
+                    <Text style={styles.textProp}>{connectionStateValue}</Text>
                 </View>
                 <View style={styles.textPane}>
-                    <ScrollView >
-                        {response.map(data => <Text style={{ paddingTop: 4, color: 'green' }}>{data}</Text>)}
+                    <ScrollView contentContainerStyle={{ flex: 1, justifyContent: 'flex-end' }}>
+                        {response.map((data, index) => <Text key={index} style={{ paddingTop: 4, ...styles.textProp }}>{data}</Text>)}
                     </ScrollView>
                 </View>
 
-                <View style={{ borderWidth: 1, borderColor: '#fff', height: 35, marginHorizontal: 2 }}>
+                <View style={{ borderWidth: 1, borderColor: '#fff', height: 40, marginHorizontal: 2 }}>
                     <TextInput
-                        style={{ color: 'green', fontSize: 10 }}
+                        style={styles.textProp}
                         onChangeText={setCommand}
                         placeholder="Send command"
+                        value={command}
                         onSubmitEditing={onSubmitEditing}
                     />
                 </View>
@@ -108,11 +103,20 @@ const styles = StyleSheet.create({
         backgroundColor: '#000',
         height: '100%'
     },
+    statusFlag: {
+        marginVertical: 2,
+        alignItems: 'center'
+    },
+    textProp: {
+        fontSize: 16,
+        color: 'green'
+    },
     textPane: {
         borderWidth: 1,
         borderColor: 'green',
         marginVertical: 5,
         marginHorizontal: 2,
-        height: '80%'
+        height: '80%',
+
     }
 })
