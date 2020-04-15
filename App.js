@@ -26,9 +26,16 @@ const App = () => {
   const [command, setCommand] = useState('');
   const [response, setResponse] = useState([]);
 
+  const config = {
+    ipAddress: '209.73.216.51',
+    port: '23',
+    username: "gorjthatsmyrj",
+    password: 'My3l@de.com'
+  }
+
   const onPressConnect = () => {
     console.log('Connect Button CLICKED')
-    TelnetClient.connect((success) => {
+    TelnetClient.connect(config, (success) => {
       console.log('===Success===')
       console.log({ success })
     }, (error) => {
@@ -52,13 +59,13 @@ const App = () => {
   const onPressDisconnect = () => {
 
     console.log('Disconnect Button clicked')
-    // TelnetClient.disconnect((success) => {
-    //   console.log('===Success===')
-    //   console.log({ success })
-    // }, (error) => {
-    //   console.log('===Error===')
-    //   console.log({ error });
-    // });
+    TelnetClient.disconnect((success) => {
+      console.log('===Success===')
+      console.log({ success })
+    }, (error) => {
+      console.log('===Error===')
+      console.log({ error });
+    });
   }
 
 
@@ -66,30 +73,30 @@ const App = () => {
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
-        <View>
+        <View style={{ borderWidth: 1, borderColor: 'black', marginVertical: 10, marginHorizontal: 10, height: '85%' }}>
+          {response.map(data => <Text style={{ paddingTop: 4 }}>{data}</Text>)}
+        </View>
+        <TouchableOpacity onPress={onPressSendCommand} style={{ backgroundColor: 'green', height: 50, flex: 1 }}>
+          <TextInput
+            onChangeText={setCommand}
+            placeholder="Send command"
+          />
+        </TouchableOpacity>
+        <View style={{ marginHorizontal: 10 }}>
           {/* Terminal */}
           <View style={{ borderWidth: 1, borderColor: 'green' }}>
             <Text>Here command line</Text>
           </View>
           {/* Buttons */}
-          <View style={{ borderWidth: 1, borderColor: 'red' }}>
-            <TouchableOpacity onPress={onPressConnect} style={{ backgroundColor: 'red', height: 50 }}>
-              <Text>Connect</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', textAlign: 'center' }}>
+            <TouchableOpacity onPress={onPressConnect} style={{ borderColor: 'black', borderWidth: 1, height: 50, flex: 1 }}>
+              <Text style={{ justifyContent: 'center', textAlign: 'center' }}>Connect</Text>
             </TouchableOpacity>
-            <TextInput
-              onChangeText={setCommand}
-            />
-            <TouchableOpacity onPress={onPressSendCommand} style={{ backgroundColor: 'green', height: 50 }}>
-              <Text>Send Command</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={onPressDisconnect} style={{ backgroundColor: 'yellow', height: 50 }}>
+            <TouchableOpacity onPress={onPressDisconnect} style={{ borderColor: 'black', borderWidth: 1, height: 50, flex: 1 }}>
               <Text>Disconnect</Text>
             </TouchableOpacity>
           </View>
-          <View style={{ borderWidth: 1, borderColor: 'black', marginVertical: 10, marginHorizontal: 10 }}>
-            {response.map(data => <Text style={{paddingTop:4}}>{data}</Text>)}
-          </View>
+
         </View>
       </SafeAreaView>
     </>
