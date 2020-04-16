@@ -20,10 +20,7 @@ const TelnetClientForm = () => {
     }
 
     useEffect(() => {
-        setTimeout(() => {
-            setConnectionStateValue(CONNECTION_STATE.SUCCESS);
-        }, 2000)
-        // onPressConnect();
+        onPressConnect();
     }, [])
 
     const onSubmitEditing = (event) => {
@@ -32,13 +29,19 @@ const TelnetClientForm = () => {
         console.log('SUBMITED')
         setResponse([...response, value]);
         setCommand('');
+        onPressSendCommand(value);
     }
 
     const onPressConnect = () => {
-        console.log('Connect Button CLICKED')
-        TelnetClient.connect(config, (success) => {
-            console.log('===Success===')
-            console.log({ success })
+        TelnetClient.connect(config, (_) => {
+            setConnectionStateValue(CONNECTION_STATE.SUCCESS);
+            TelnetClient.sendCommand("?", (success) => {
+                console.log('===Success===')
+                setResponse(success);
+            }, (error) => {
+                console.log('===Error===')
+                console.log({ error });
+            });
         }, (error) => {
             console.log('===Error===')
             console.log({ error })
@@ -49,8 +52,7 @@ const TelnetClientForm = () => {
         console.log('Command button clicked')
         TelnetClient.sendCommand(command, (success) => {
             console.log('===Success===')
-            setResponse(success);
-            // success.map(data => console.log(data))
+            setResponse([response, ...success]);
         }, (error) => {
             console.log('===Error===')
             console.log({ error });
@@ -62,6 +64,7 @@ const TelnetClientForm = () => {
         TelnetClient.disconnect((success) => {
             console.log('===Success===')
             console.log({ success })
+
         }, (error) => {
             console.log('===Error===')
             console.log({ error });
@@ -77,12 +80,12 @@ const TelnetClientForm = () => {
                     <Text style={styles.textProp}>{connectionStateValue}</Text>
                 </View>
                 <View style={styles.textPane}>
-                    <ScrollView contentContainerStyle={{ flex: 1, justifyContent: 'flex-end' }}>
+                    <ScrollView contentContainerStyle={{ justifyContent: 'flex-end', paddingTop: 10 }}>
                         {response.map((data, index) => <Text key={index} style={{ paddingTop: 4, ...styles.textProp }}>{data}</Text>)}
                     </ScrollView>
                 </View>
 
-                <View style={{ borderWidth: 1, borderColor: '#fff', height: 40, marginHorizontal: 2 }}>
+                <View style={{ height: 40, marginHorizontal: 2 }}>
                     <TextInput
                         style={styles.textProp}
                         onChangeText={setCommand}
@@ -108,15 +111,15 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     textProp: {
-        fontSize: 16,
+        fontSize: 12,
         color: 'green'
     },
     textPane: {
         borderWidth: 1,
-        borderColor: 'green',
-        marginVertical: 5,
+        // borderColor: 'green',
+        // marginTop: 20,
         marginHorizontal: 2,
-        height: '80%',
+        height: '85%',
 
     }
 })
