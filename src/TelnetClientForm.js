@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, Text, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 import TelnetClient from '../TelnetClient';
 
 const TelnetClientForm = () => {
@@ -13,10 +13,10 @@ const TelnetClientForm = () => {
     const [connectionStateValue, setConnectionStateValue] = useState(CONNECTION_STATE.ON_LOAD);
 
     const config = {
-        ipAddress: '209.73.216.51',
-        port: '23',
-        username: "gorjthatsmyrj",
-        password: 'My3l@de.com'
+        ipAddress: '1.1.1.1.1',
+        port: '1.1.1.1',
+        username: "usr",
+        password: 'pwd'
     }
 
     useEffect(() => {
@@ -71,21 +71,19 @@ const TelnetClientForm = () => {
         });
     }
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-        >
+        <KeyboardAvoidingView style={styles.container}>
             <View style={styles.container}>
-                {/* status flag */}
                 <View style={styles.statusFlag}>
                     <Text style={styles.textProp}>{connectionStateValue}</Text>
                 </View>
                 <View style={styles.textPane}>
-                    <ScrollView contentContainerStyle={{ justifyContent: 'flex-end', paddingTop: 10 }}>
-                        {response.map((data, index) => <Text key={index} style={{ paddingTop: 4, ...styles.textProp }}>{data}</Text>)}
+                    <ScrollView contentContainerStyle={styles.textPaneScrollView}>
+                        {response.map((data, index) =>
+                            <Text key={index} style={[styles.textResponse, styles.textProp]}>{data}</Text>
+                        )}
                     </ScrollView>
                 </View>
-
-                <View style={{ height: 40, marginHorizontal: 2 }}>
+                <View style={styles.inputWrapper}>
                     <TextInput
                         style={styles.textProp}
                         onChangeText={setCommand}
@@ -114,12 +112,20 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: 'green'
     },
+    textResponse: {
+        paddingTop: 4
+    },
     textPane: {
         borderWidth: 1,
-        // borderColor: 'green',
-        // marginTop: 20,
         marginHorizontal: 2,
         height: '85%',
-
+    },
+    inputWrapper: {
+        height: 40,
+        marginHorizontal: 2
+    },
+    textPaneScrollView: {
+        justifyContent: 'flex-end',
+        paddingTop: 10
     }
 })
