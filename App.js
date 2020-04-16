@@ -7,21 +7,15 @@
  */
 
 import React from 'react';
-import {SafeAreaView} from 'react-native';
+import { SafeAreaView } from 'react-native';
 import TelnetClientForm from './src/TelnetClientForm';
 
 const App = () => {
-
   return (
-    <>
-      <SafeAreaView>
-        <TelnetClientForm />
-      </SafeAreaView>
-    </>
+    <SafeAreaView>
+      <TelnetClientForm />
+    </SafeAreaView>
   );
 };
-
-// const styles = StyleSheet.create({
-// });
 
 export default App;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, Text, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
 import TelnetClient from '../TelnetClient';
 
 const TelnetClientForm = () => {
@@ -13,10 +13,10 @@ const TelnetClientForm = () => {
     const [connectionStateValue, setConnectionStateValue] = useState(CONNECTION_STATE.ON_LOAD);
 
     const config = {
-        ipAddress: '209.73.216.51',
-        port: '23',
-        username: "gorjthatsmyrj",
-        password: 'My3l@de.com'
+        ipAddress: '1.1.1.1.1',
+        port: '1.1.1.1',
+        username: "usr",
+        password: 'pwd'
     }
 
     useEffect(() => {
@@ -75,7 +75,6 @@ const TelnetClientForm = () => {
             style={styles.container}
         >
             <View style={styles.container}>
-                {/* status flag */}
                 <View style={styles.statusFlag}>
                     <Text style={styles.textProp}>{connectionStateValue}</Text>
                 </View>
